@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexin2048 - Game Downloader</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a0000; /* Darker red background */
+            overflow: hidden; /* Hide overflow for fluid background */
+            color: #fff;
+        }
+
+        /* Fluid Background Animation */
+        .fluid-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff0000, #8b0000, #ff4500); /* Red gradients */
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            background: rgba(255, 0, 0, 0.2); /* Semi-transparent red */
+            border: 2px solid #ff0000; /* Solid red border */
+            border-radius: 25px; /* Rounded corners for the whole web */
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+            text-align: center;
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 90%;
+            position: relative; /* For the glow effect */
+        }
+
+        h1 {
+            color: #ff0000; /* Red title */
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        h2 {
+            color: #ccc;
+            font-size: 1.1em;
+            margin-top: 5px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 15px 10px;
+            border: 2px solid #ff0000; /* Red border */
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: #bbb;
+        }
+
+        input[type="text"]:focus {
+            border-color: #00ff00; /* Green glow on focus */
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px 20px;
+            background: #ff0000; /* Red button */
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #cc0000; /* Darker red on hover */
+            transform: translateY(-3px) scale(1.02); /* Slightly enlarge and move up */
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); /* Green glow on hover */
+        }
+
+        /* Green light effect on hover */
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(0, 255, 0, 0.5); /* Green light */
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease-out, height 0.4s ease-out;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        button:hover::before {
+            width: 200%;
+            height: 200%;
+            opacity: 1;
+        }
+
+        button span {
+            position: relative;
+            z-index: 1; /* Keep text above the glow */
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #ffcccc;
+            transition: color 0.3s ease;
+        }
+
+        .status-message.error {
+            color: #ff6666;
+        }
+
+        .status-message.success {
+            color: #00ff00;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.8em;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="fluid-background"></div>
+
+    <div class="container">
+        <h1>Flexin2048 - Game Downloader</h1>
+        <h2>BY FLEXIN2048</h2>
+
+        <div class="input-group">
+            <input type="text" id="gameIdInput" placeholder="Insert Game ID">
+        </div>
+
+        <button onclick="downloadGame()"><span>DOWNLOAD RBXL</span></button>
+
+        <p class="status-message" id="statusMessage">Processing ID...</p>
+
+        <p class="footer">© 2024 FLEXIN2048. ALL RIGHTS RESERVED</p>
+    </div>
+
+    <script>
+        async function downloadGame() {
+            const gameId = document.getElementById('gameIdInput').value.trim();
+            const statusMessage = document.getElementById('statusMessage');
+
+            statusMessage.textContent = 'Processing ID...';
+            statusMessage.className = 'status-message'; // Reset class
+
+            if (!gameId) {
+                statusMessage.textContent = 'Please insert a valid Game ID.';
+                statusMessage.classList.add('error');
+                return;
+            }
+
+            try {
+                // Fetch from our Vercel Serverless Function
+                const response = await fetch(`/api/download?id=${gameId}`);
+
+                if (response.ok) {
+                    // If the response is OK, it means the server initiated the download
+                    // The browser will handle the download directly from the API endpoint
+                    statusMessage.textContent = 'Download initiated! Check your downloads.';
+                    statusMessage.classList.add('success');
+                    
+                    // We directly open the API URL to trigger the download
+                    window.location.href = `/api/download?id=${gameId}`;
+
+                } else {
+                    const errorData = await response.json();
+                    statusMessage.textContent = `Error: ${errorData.detail || errorData.error || 'Could not initiate download.'}`;
+                    statusMessage.classList.add('error');
+                }
+            } catch (error) {
+                console.error('Network or unexpected error:', error);
+                statusMessage.textContent = 'An unexpected error occurred. Please try again.';
+                statusMessage.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>
