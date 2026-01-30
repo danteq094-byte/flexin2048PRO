@@ -1,42 +1,30 @@
 // api/download.js
-import fetch from 'node-fetch'; // Vercel's Node.js environment has fetch available
-
 export default async function handler(req, res) {
     const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: "Missing Game ID" });
-    }
-
-    // Roblox Asset Delivery URL for places (games)
-    // Note: This API typically requires the place to be 'copylocked=false' or owned by the user
-    // or accessed via a privileged token for private places.
-    // For public games, it might work, but Roblox has rate limits and potential IP blocks.
-    // In a real-world scenario for public games, you might need a proxy.
-    const assetUrl = `https://assetdelivery.roblox.com/v1/asset/?id=${id}`;
+    if (!id) return res.status(400).json({ error: "No ID provided" });
 
     try {
+        // 1. Buscamos el nombre del juego usando la API de Roblox (vía Proxy)
+        const infoRes = await fetch(`https://games.roproxy.com/v1/games/multiget-place-details?placeIds=${id}`);
+        const infoData = await infoRes.json();
+        
+        // Limpiamos el nombre para que no tenga caracteres raros
+        let fileName = infoData[0]?.name ? infoData[0].name.replace(/[^a-z0-9]/gi, '_') : "FlexinGame";
+
+        // 2. Intentamos descargar el archivo .rbxl (que es el formato de juegos/mapas)
+        const assetUrl = `https://assetdelivery.roproxy.com/v1/asset/?id=${id}`;
         const response = await fetch(assetUrl);
 
-        if (!response.ok) {
-            // Try to get more specific error from Roblox if available
-            const errorText = await response.text();
-            console.error(`Roblox API Error: ${response.status} - ${errorText}`);
-            return res.status(response.status).json({
-                error: "Failed to fetch game from Roblox.",
-                detail: `Roblox API responded with status ${response.status}. It might be a private game, an invalid ID, or Roblox blocking the request.`
-            });
-        }
+        if (!response.ok) throw new Error("Uncopylocked only or Invalid ID");
 
-        // Set headers for file download
+        // 3. Enviamos el archivo con el nombre del juego y extensión .rbxm como pediste
         res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('Content-Disposition', `attachment; filename="flexin2048_${id}.rbxl"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}.rbxm"`);
 
-        // Stream the response directly to the client
-        response.body.pipe(res);
+        const arrayBuffer = await response.arrayBuffer();
+        res.send(Buffer.from(arrayBuffer));
 
     } catch (error) {
-        console.error("Error during game download:", error);
-        res.status(500).json({ error: "Internal server error during game download.", detail: error.message });
+        res.status(500).json({ error: "Download failed", detail: "Ensure the game is Uncopylocked." });
     }
 }
