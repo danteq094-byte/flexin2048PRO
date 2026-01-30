@@ -2,228 +2,140 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flexin2048 - Game Downloader</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-        body {
+        body, html {
             margin: 0;
             padding: 0;
-            font-family: 'Montserrat', sans-serif;
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: #1a0000; /* Darker red background */
-            overflow: hidden; /* Hide overflow for fluid background */
-            color: #fff;
+            background: #4a0000;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
         }
 
-        /* Fluid Background Animation */
-        .fluid-background {
+        /* Fondo de ondas rojas (Animado) */
+        .waves {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, #ff0000, #8b0000, #ff4500); /* Red gradients */
-            background-size: 400% 400%;
-            animation: gradientAnimation 15s ease infinite;
+            background: radial-gradient(circle at center, #ff1a1a 0%, #4a0000 100%);
             z-index: -1;
         }
 
-        @keyframes gradientAnimation {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
+        .waves::after {
+            content: "";
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'), 
+                        linear-gradient(45deg, rgba(255,0,0,0.2) 25%, transparent 25%);
+            animation: move 20s linear infinite;
+            opacity: 0.3;
         }
 
-        .container {
-            background: rgba(255, 0, 0, 0.2); /* Semi-transparent red */
-            border: 2px solid #ff0000; /* Solid red border */
-            border-radius: 25px; /* Rounded corners for the whole web */
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+        @keyframes move {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* El contenedor con bordes redondos */
+        .glass-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 0, 0, 0.5);
+            border-radius: 40px;
+            padding: 60px;
             text-align: center;
-            backdrop-filter: blur(10px); /* Frosted glass effect */
-            -webkit-backdrop-filter: blur(10px);
-            max-width: 400px;
-            width: 90%;
-            position: relative; /* For the glow effect */
+            width: 450px;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.3);
         }
 
         h1 {
-            color: #ff0000; /* Red title */
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            color: #ff4d4d;
+            font-size: 32px;
+            font-style: italic;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
         }
 
-        h2 {
-            color: #ccc;
-            font-size: 1.1em;
-            margin-top: 5px;
-            margin-bottom: 30px;
-        }
+        h2 { color: #ff9999; font-size: 14px; margin-bottom: 40px; letter-spacing: 2px; }
 
-        .input-group {
-            margin-bottom: 25px;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 15px 10px;
-            border: 2px solid #ff0000; /* Red border */
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 1em;
+        input {
+            width: 90%;
+            padding: 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff3333;
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
             outline: none;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 25px;
+            text-align: center;
         }
 
-        input[type="text"]::placeholder {
-            color: #bbb;
-        }
-
-        input[type="text"]:focus {
-            border-color: #00ff00; /* Green glow on focus */
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.6);
-        }
-
+        /* Botón con luz verde y animación */
         button {
             width: 100%;
-            padding: 15px 20px;
-            background: #ff0000; /* Red button */
+            padding: 20px;
+            background: #ff4d4d;
             border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1.2em;
+            border-radius: 30px;
+            color: white;
             font-weight: bold;
+            font-size: 20px;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
         }
 
         button:hover {
-            background: #cc0000; /* Darker red on hover */
-            transform: translateY(-3px) scale(1.02); /* Slightly enlarge and move up */
-            box-shadow: 0 0 25px rgba(0, 255, 0, 0.8); /* Green glow on hover */
+            transform: scale(1.08); /* Se agranda un poco */
+            background: #ff3333;
+            box-shadow: 0 0 35px #00ff44; /* Luz verde neón al pasar el mouse */
         }
 
-        /* Green light effect on hover */
-        button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(0, 255, 0, 0.5); /* Green light */
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.4s ease-out, height 0.4s ease-out;
-            opacity: 0;
-            z-index: 0;
-        }
-
-        button:hover::before {
-            width: 200%;
-            height: 200%;
-            opacity: 1;
-        }
-
-        button span {
-            position: relative;
-            z-index: 1; /* Keep text above the glow */
-        }
-
-        .status-message {
-            margin-top: 20px;
-            font-size: 0.9em;
-            color: #ffcccc;
-            transition: color 0.3s ease;
-        }
-
-        .status-message.error {
-            color: #ff6666;
-        }
-
-        .status-message.success {
-            color: #00ff00;
-        }
-
-        .footer {
-            margin-top: 30px;
-            font-size: 0.8em;
-            color: #aaa;
-        }
+        #status { color: #ffcccc; margin-top: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="fluid-background"></div>
+    <div class="waves"></div>
 
-    <div class="container">
+    <div class="glass-card">
         <h1>Flexin2048 - Game Downloader</h1>
         <h2>BY FLEXIN2048</h2>
 
-        <div class="input-group">
-            <input type="text" id="gameIdInput" placeholder="Insert Game ID">
-        </div>
+        <input type="text" id="gameId" placeholder="Insert Game ID">
+        <button onclick="download()">DOWNLOAD RBXM</button>
 
-        <button onclick="downloadGame()"><span>DOWNLOAD RBXL</span></button>
+        <div id="status">Ready to scan...</div>
 
-        <p class="status-message" id="statusMessage">Processing ID...</p>
-
-        <p class="footer">© 2024 FLEXIN2048. ALL RIGHTS RESERVED</p>
+        <p style="color: rgba(255,255,255,0.3); font-size: 11px; margin-top: 50px;">
+            © 2024 FLEXIN2048. ALL DOR RESERIVED
+        </p>
     </div>
 
     <script>
-        async function downloadGame() {
-            const gameId = document.getElementById('gameIdInput').value.trim();
-            const statusMessage = document.getElementById('statusMessage');
-
-            statusMessage.textContent = 'Processing ID...';
-            statusMessage.className = 'status-message'; // Reset class
-
-            if (!gameId) {
-                statusMessage.textContent = 'Please insert a valid Game ID.';
-                statusMessage.classList.add('error');
+        function download() {
+            const id = document.getElementById('gameId').value;
+            const status = document.getElementById('status');
+            
+            if(!id) {
+                status.innerText = "Please enter an ID";
                 return;
             }
 
-            try {
-                // Fetch from our Vercel Serverless Function
-                const response = await fetch(`/api/download?id=${gameId}`);
-
-                if (response.ok) {
-                    // If the response is OK, it means the server initiated the download
-                    // The browser will handle the download directly from the API endpoint
-                    statusMessage.textContent = 'Download initiated! Check your downloads.';
-                    statusMessage.classList.add('success');
-                    
-                    // We directly open the API URL to trigger the download
-                    window.location.href = `/api/download?id=${gameId}`;
-
-                } else {
-                    const errorData = await response.json();
-                    statusMessage.textContent = `Error: ${errorData.detail || errorData.error || 'Could not initiate download.'}`;
-                    statusMessage.classList.add('error');
-                }
-            } catch (error) {
-                console.error('Network or unexpected error:', error);
-                statusMessage.textContent = 'An unexpected error occurred. Please try again.';
-                statusMessage.classList.add('error');
-            }
+            status.innerText = "Connecting to Roblox...";
+            // Ejecuta la descarga
+            window.location.href = `/api/download?id=${id}`;
+            
+            setTimeout(() => { status.innerText = "Processing File..."; }, 2000);
         }
     </script>
 </body>
